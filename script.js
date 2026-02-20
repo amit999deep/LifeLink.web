@@ -8,31 +8,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DOM Elements
     const navItems = document.querySelectorAll('.nav-item');
+    const sidebar = document.querySelector('.sidebar');
+    const mobileToggle = document.getElementById('mobile-toggle');
     const tabPanes = document.querySelectorAll('.tab-pane');
     const registrationForm = document.getElementById('registration-form');
     const babyRecordsList = document.getElementById('baby-records-list');
     const newRegBtn = document.getElementById('new-registration-btn');
     const overlay = document.getElementById('verify-overlay');
     const closeBtn = document.querySelector('.close-btn');
-
     const startMainVerifyBtn = document.getElementById('start-main-verify');
+    const exportBtn = document.getElementById('export-records');
 
-    const sidebar = document.querySelector('.sidebar');
-    const mobileToggle = document.getElementById('mobile-toggle');
+    if (!sidebar || !mobileToggle) {
+        console.warn('Sidebar or mobile toggle not found');
+    } else {
+        // Mobile Sidebar Toggle
+        mobileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+        });
 
-    // Mobile Sidebar Toggle
-    mobileToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-    });
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== mobileToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
 
     // Tab Switching Logic
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            e.preventDefault();
             const targetTab = item.getAttribute('data-tab');
+            if (!targetTab) return;
+
+            e.preventDefault();
 
             // Close sidebar on mobile after selection
-            if (window.innerWidth <= 1024) {
+            if (sidebar && window.innerWidth <= 1024) {
                 sidebar.classList.remove('open');
             }
             navItems.forEach(nav => nav.classList.remove('active'));
@@ -51,16 +64,81 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Main Verification Portal Trigger
-    startMainVerifyBtn.addEventListener('click', () => {
-        showVerificationModal(records[0]); // Demo with the first record
+    // Simulated Export
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            showNotification('Preparing patient reports...', 'success');
+            setTimeout(() => {
+                showNotification('Report (LL-2026-FEB.pdf) downloaded!', 'success');
+            }, 2000);
+        });
+    }
+
+    // Quick Actions
+    document.querySelectorAll('.action-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.querySelector('span').innerText;
+            showNotification(`${action} started...`, 'success');
+        });
     });
 
+    // Main Verification Portal Trigger
+    if (startMainVerifyBtn) {
+        startMainVerifyBtn.addEventListener('click', () => {
+            showVerificationModal(records[0]); // Demo with the first record
+        });
+    }
+
     // Special case for "New Born Registration" button in header
-    newRegBtn.addEventListener('click', () => {
-        const regTab = document.querySelector('[data-tab="registration"]');
-        regTab.click();
-    });
+    if (newRegBtn) {
+        newRegBtn.addEventListener('click', () => {
+            const regTab = document.querySelector('[data-tab="registration"]');
+            if (regTab) regTab.click();
+        });
+    }
+
+    // Dashboard Search Logic
+    const dashboardSearch = document.getElementById('dashboard-search');
+    if (dashboardSearch) {
+        dashboardSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filteredRecords = records.filter(record =>
+                record.babyName.toLowerCase().includes(query) ||
+                record.motherName.toLowerCase().includes(query) ||
+                record.id.toLowerCase().includes(query)
+            );
+            renderRecords(filteredRecords);
+        });
+    }
+
+    // Manual Search Logic
+    const manualSearchInput = document.getElementById('manual-search-input');
+    const manualSearchBtn = document.getElementById('manual-search-btn');
+
+    if (manualSearchBtn && manualSearchInput) {
+        const resultDisplay = document.getElementById('search-result-display');
+        const displayMother = document.getElementById('res-display-mother');
+        const displayBaby = document.getElementById('res-display-baby');
+
+        manualSearchBtn.addEventListener('click', () => {
+            const query = manualSearchInput.value.trim().toLowerCase();
+            if (!query) {
+                showNotification('Please enter a Reference ID.', 'error');
+                resultDisplay.classList.add('hidden');
+                return;
+            }
+
+            const record = records.find(r => r.id.toLowerCase().includes(query));
+            if (record) {
+                displayMother.innerText = record.motherName;
+                displayBaby.innerText = record.babyName;
+                resultDisplay.classList.remove('hidden');
+            } else {
+                showNotification('No record found for the provided ID.', 'error');
+                resultDisplay.classList.add('hidden');
+            }
+        });
+    }
 
     // Biometric Scan Simulation
     const scanMotherBtn = document.getElementById('scan-mother-btn');
@@ -112,7 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const motherName = document.getElementById('mother-name').value;
+        const motherId = document.getElementById('mother-id').value;
         const babyNameInput = document.getElementById('baby-name').value;
+
+        if (motherId.length !== 6 || !/^\d+$/.test(motherId)) {
+            showNotification('Hospital ID must be exactly 6 digits.', 'error');
+            return;
+        }
         const babyName = babyNameInput || `Baby of ${motherName}`;
 
         const newRecord = {
@@ -132,8 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification(`${babyName} registered and paired successfully!`, 'success');
     });
 
-    function renderRecords() {
-        babyRecordsList.innerHTML = records.map(record => `
+    function renderRecords(recordsToRender = records) {
+        babyRecordsList.innerHTML = recordsToRender.map(record => `
             <tr>
                 <td>${record.id}</td>
                 <td>
