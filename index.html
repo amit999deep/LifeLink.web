@@ -42,14 +42,6 @@
                     <span>Settings</span>
                 </a>
             </nav>
-            <div class="user-profile">
-                <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=100&auto=format&fit=crop"
-                    alt="Doctor" class="profile-img">
-                <div class="profile-info">
-                    <span class="profile-name">Dr. rajkishore debbarma</span>
-                    <span class="profile-role">Head Pediatrician</span>
-                </div>
-            </div>
         </aside>
 
         <!-- Main Content -->
@@ -60,13 +52,9 @@
                 </button>
                 <div class="search-bar">
                     <i data-lucide="search"></i>
-                    <input type="text" placeholder="Search by baby ID, Mother's name...">
+                    <input type="text" id="dashboard-search" placeholder="Search by baby ID, Mother's name...">
                 </div>
                 <div class="top-actions">
-                    <button class="icon-btn" title="Notifications">
-                        <i data-lucide="bell"></i>
-                        <span class="badge"></span>
-                    </button>
                     <button class="btn btn-primary" id="new-registration-btn">
                         <i data-lucide="plus"></i>
                         New Born Registration
@@ -106,17 +94,8 @@
                             <span class="stat-change">Live Monitoring</span>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon orange">
-                            <i data-lucide="alert-circle"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Pending Sync</h3>
-                            <p class="stat-value">2</p>
-                            <span class="stat-change warning">Action Required</span>
-                        </div>
-                    </div>
                 </div>
+
 
                 <section class="recent-records">
                     <div class="section-header">
@@ -182,7 +161,8 @@
                             </div>
                             <div class="form-group">
                                 <label>Mother's Hospital ID</label>
-                                <input type="text" id="mother-id" required placeholder="HOSP-XXXXX">
+                                <input type="text" id="mother-id" required pattern="\d{6}" maxlength="6"
+                                    placeholder="Enter 6-digit ID">
                             </div>
                         </div>
 
@@ -248,10 +228,19 @@
 
                         <div class="verify-action-card glass">
                             <div class="card-icon"><i data-lucide="search"></i></div>
-                            <h3>Manual Search</h3>
+                            <h3>Enter REF ID</h3>
                             <div class="mini-search">
-                                <input type="text" placeholder="Enter Hospital ID...">
-                                <button class="btn-icon"><i data-lucide="arrow-right"></i></button>
+                                <input type="text" id="manual-search-input" placeholder="Enter Reference ID...">
+                                <button class="btn-icon" id="manual-search-btn"><i
+                                        data-lucide="arrow-right"></i></button>
+                            </div>
+                            <div id="search-result-display" class="search-result-display hidden">
+                                <div class="result-details">
+                                    <p class="result-label">Mother Name</p>
+                                    <p class="result-value" id="res-display-mother">-</p>
+                                    <p class="result-label">Newborn Name</p>
+                                    <p class="result-value" id="res-display-baby">-</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -262,12 +251,6 @@
             <div id="tab-records" class="tab-pane">
                 <div class="records-header">
                     <h2>Master Patient Records</h2>
-                    <div class="filter-bar">
-                        <button class="filter-chip active">All</button>
-                        <button class="filter-chip">Today</button>
-                        <button class="filter-chip">This Week</button>
-                        <button class="filter-chip">In-Patient</button>
-                    </div>
                 </div>
                 <div class="table-container full-table">
                     <table>
