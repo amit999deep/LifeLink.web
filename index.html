@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeLink | Newborn & Mother Biometric Identification System</title>
+    <title>LifeLink | Newborn & Mother Face Identification System</title>
     <meta name="description"
-        content="Advanced hospital management system for newborn identification and mother-baby pairing using secure biometric technology.">
+        content="Advanced hospital management system for newborn identification and mother-baby pairing using secure AI face verification.">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -30,8 +30,8 @@
                     <span>Registration</span>
                 </a>
                 <a href="#" class="nav-item" data-tab="verification">
-                    <i data-lucide="fingerprint"></i>
-                    <span>Biometric Verify</span>
+                    <i data-lucide="user-check"></i>
+                    <span>Face Identification</span>
                 </a>
                 <a href="#" class="nav-item" data-tab="records">
                     <i data-lucide="database"></i>
@@ -110,7 +110,7 @@
                                     <th>Newborn Name</th>
                                     <th>Mother Name</th>
                                     <th>Birth Date & Time</th>
-                                    <th>Biometric Status</th>
+                                    <th>Face Scan Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -139,7 +139,7 @@
             <div id="tab-registration" class="tab-pane">
                 <div class="form-container glass">
                     <h2>New Born Registration</h2>
-                    <p class="form-subtitle">Register a new birth and link with Mother's biometric ID</p>
+                    <p class="form-subtitle">Register a new birth and link with Mother's face ID</p>
 
                     <form id="registration-form">
                         <div class="form-grid">
@@ -160,32 +160,37 @@
                                 <input type="text" id="mother-name" required placeholder="Full name as per ID">
                             </div>
                             <div class="form-group">
-                                <label>Mother's Hospital ID</label>
+                                <label>Mother's Hos pital ID</label>
                                 <input type="text" id="mother-id" required pattern="\d{6}" maxlength="6"
                                     placeholder="Enter 6-digit ID">
                             </div>
                         </div>
 
                         <div class="biometric-setup">
-                            <h3>Biometric Pairing</h3>
+                            <h3>Face Pairing System</h3>
                             <div class="setup-grid">
-                                <div class="scan-step">
-                                    <div class="scan-preview" id="mother-scan-preview">
-                                        <i data-lucide="fingerprint"></i>
-                                        <span class="scan-label">Mother's Fingerprint</span>
+                                <div class="scan-group">
+                                    <div class="scan-step">
+                                        <div class="scan-preview" id="mother-face-preview">
+                                            <i data-lucide="camera"></i>
+                                            <span class="scan-label">Mother's Face</span>
+                                        </div>
+                                        <button type="button" class="btn btn-outline" id="scan-mother-face-btn">Scan
+                                            Mother's Face</button>
                                     </div>
-                                    <button type="button" class="btn btn-outline" id="scan-mother-btn">Start
-                                        Scan</button>
                                 </div>
                                 <div class="scan-arrow">
                                     <i data-lucide="arrow-right-left"></i>
                                 </div>
-                                <div class="scan-step">
-                                    <div class="scan-preview" id="baby-scan-preview">
-                                        <i data-lucide="hand"></i>
-                                        <span class="scan-label">Baby's Palm Scan</span>
+                                <div class="scan-group">
+                                    <div class="scan-step">
+                                        <div class="scan-preview" id="baby-face-preview">
+                                            <i data-lucide="scan"></i>
+                                            <span class="scan-label">Baby's Face</span>
+                                        </div>
+                                        <button type="button" class="btn btn-outline" id="scan-baby-face-btn">Scan
+                                            Baby's Face</button>
                                     </div>
-                                    <button type="button" class="btn btn-outline" id="scan-baby-btn">Start Scan</button>
                                 </div>
                             </div>
                         </div>
@@ -204,7 +209,7 @@
                     <div class="verify-hero glass">
                         <div class="hero-text">
                             <h2>Smart Identify System</h2>
-                            <p>Verify Mother-Newborn relationship using instantaneous biometric cross-referencing.</p>
+                            <p>Verify Mother-Newborn relationship using instantaneous face cross-referencing.</p>
                         </div>
                         <div class="verify-stats">
                             <div class="v-stat">
@@ -221,25 +226,34 @@
                     <div class="verification-grid">
                         <div class="verify-action-card glass">
                             <div class="card-icon"><i data-lucide="scan"></i></div>
-                            <h3>Instant Scan</h3>
-                            <p>Place mother's finger on the scanner to automatically retrieve newborn profile.</p>
-                            <button class="btn btn-primary" id="start-main-verify">Start Biometric Scan</button>
+                            <h3>AI Face Identity</h3>
+                            <p>Scan baby's face to automatically find and verify the paired mother record.</p>
+                            <button class="btn btn-primary" id="start-face-verify">Verify Baby Face</button>
                         </div>
 
                         <div class="verify-action-card glass">
                             <div class="card-icon"><i data-lucide="search"></i></div>
-                            <h3>Enter REF ID</h3>
+                            <h3>Search via REF ID</h3>
+                            <p>Enter the 4-digit Baby ID (found on wristband) to verify parent-child relationship.</p>
                             <div class="mini-search">
-                                <input type="text" id="manual-search-input" placeholder="Enter Reference ID...">
+                                <input type="text" id="manual-search-input" placeholder="Enter Ref ID (e.g. #NB-9042)">
                                 <button class="btn-icon" id="manual-search-btn"><i
                                         data-lucide="arrow-right"></i></button>
                             </div>
                             <div id="search-result-display" class="search-result-display hidden">
-                                <div class="result-details">
-                                    <p class="result-label">Mother Name</p>
-                                    <p class="result-value" id="res-display-mother">-</p>
-                                    <p class="result-label">Newborn Name</p>
-                                    <p class="result-value" id="res-display-baby">-</p>
+                                <div class="result-card-paired">
+                                    <div class="result-face-v">
+                                        <img id="res-display-face" src="" alt="Baby Face" class="hidden">
+                                        <div id="res-face-placeholder" class="face-placeholder">
+                                            <i data-lucide="user"></i>
+                                        </div>
+                                    </div>
+                                    <div class="result-details">
+                                        <p class="result-label">Mother Name</p>
+                                        <p class="result-value" id="res-display-mother">-</p>
+                                        <p class="result-label">Newborn Name</p>
+                                        <p class="result-value" id="res-display-baby">-</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -288,7 +302,7 @@
                         <div class="setting-item">
                             <div class="setting-info">
                                 <h3>Security Protocols</h3>
-                                <p>Manage biometric encryption levels and access logs.</p>
+                                <p>Manage face data encryption levels and access logs.</p>
                             </div>
                             <button class="btn btn-outline">Configure</button>
                         </div>
@@ -322,17 +336,25 @@
             <div id="verify-overlay" class="overlay hidden">
                 <div class="modal glass biometric-modal">
                     <div class="modal-header">
-                        <h2>Biometric Verification</h2>
+                        <h2>Face Scan Verification</h2>
                         <button class="close-btn">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="scanning-animation">
                             <div class="scanner-line"></div>
-                            <i data-lucide="fingerprint" class="scan-icon"></i>
+                            <i data-lucide="camera" class="scan-icon"></i>
+                            <button id="camera-switch-btn" class="camera-switch-btn hidden">
+                                <i data-lucide="refresh-cw"></i>
+                            </button>
                         </div>
-                        <div class="scan-status-text">Scanning Fingerprint...</div>
+                        <div class="scan-status-text">Initializing Face Scan...</div>
                         <div class="match-result hidden">
-                            <i data-lucide="check-circle-2" class="success-icon"></i>
+                            <div class="match-face-result">
+                                <img id="res-match-baby-face" src="" alt="Mother Face" class="hidden">
+                                <div id="res-match-placeholder" class="face-placeholder-small">
+                                    <i data-lucide="user"></i>
+                                </div>
+                            </div>
                             <h3>Match Found!</h3>
                             <div class="match-info">
                                 <div class="match-card">
@@ -345,6 +367,16 @@
                                     <span class="value" id="res-baby-name">Baby John Doe</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="match-failed hidden">
+                            <div class="error-face-result">
+                                <i data-lucide="x-circle"></i>
+                            </div>
+                            <h3>Face Not Match</h3>
+                            <p>Identity verification failed. Please try again or use manual ID search.</p>
+                            <button class="btn btn-outline" id="retry-scan-btn" style="margin-top: 1.5rem;">Retry
+                                Scan</button>
                         </div>
                     </div>
                 </div>
