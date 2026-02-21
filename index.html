@@ -14,7 +14,7 @@
 
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
+        <!-- menue-->
         <aside class="sidebar">
             <div class="logo">
                 <i data-lucide="shield-check" class="logo-icon"></i>
@@ -37,10 +37,7 @@
                     <i data-lucide="database"></i>
                     <span>Patient Records</span>
                 </a>
-                <a href="#" class="nav-item" data-tab="settings">
-                    <i data-lucide="settings"></i>
-                    <span>Settings</span>
-                </a>
+
             </nav>
         </aside>
 
@@ -63,39 +60,6 @@
             </header>
 
             <div id="tab-dashboard" class="tab-pane active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <i data-lucide="baby"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Total Births</h3>
-                            <p class="stat-value">1,284</p>
-                            <span class="stat-change positive">+12% this month</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <i data-lucide="link"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Paired Pairs</h3>
-                            <p class="stat-value">1,282</p>
-                            <span class="stat-change">99.8% Accuracy</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon purple">
-                            <i data-lucide="activity"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Active Scans</h3>
-                            <p class="stat-value">14</p>
-                            <span class="stat-change">Live Monitoring</span>
-                        </div>
-                    </div>
-                </div>
-
 
                 <section class="recent-records">
                     <div class="section-header">
@@ -135,11 +99,10 @@
                 </section>
             </div>
 
-            <!-- Registration Tab (Hidden by default) -->
+            <!-- Registration Tab -->
             <div id="tab-registration" class="tab-pane">
                 <div class="form-container glass">
                     <h2>New Born Registration</h2>
-                    <p class="form-subtitle">Register a new birth and link with Mother's face ID</p>
 
                     <form id="registration-form">
                         <div class="form-grid">
@@ -196,32 +159,16 @@
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary btn-lg">Complete Registration &
-                                Pairing</button>
+                            <button type="submit" class="btn btn-primary btn-lg">Complete Registration</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Biometric Verification Tab -->
+            <!-- Biometric Verification part -->
             <div id="tab-verification" class="tab-pane">
                 <div class="verify-dashboard">
-                    <div class="verify-hero glass">
-                        <div class="hero-text">
-                            <h2>Smart Identify System</h2>
-                            <p>Verify Mother-Newborn relationship using instantaneous face cross-referencing.</p>
-                        </div>
-                        <div class="verify-stats">
-                            <div class="v-stat">
-                                <span class="v-val">0.02s</span>
-                                <span class="v-label">Match Speed</span>
-                            </div>
-                            <div class="v-stat">
-                                <span class="v-val">99.9%</span>
-                                <span class="v-label">Accuracy Rate</span>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <div class="verification-grid">
                         <div class="verify-action-card glass">
@@ -280,7 +227,7 @@
                             </tr>
                         </thead>
                         <tbody id="full-records-list">
-                            <!-- Populated via JS -->
+                            <!-- JS -->
                             <tr>
                                 <td>H-9042</td>
                                 <td>Rupa Dash</td>
@@ -294,44 +241,8 @@
                     </table>
                 </div>
             </div>
-            <!-- Settings Tab -->
-            <div id="tab-settings" class="tab-pane">
-                <div class="settings-container glass">
-                    <h2>System Settings</h2>
-                    <div class="settings-sections">
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Security Protocols</h3>
-                                <p>Manage face data encryption levels and access logs.</p>
-                            </div>
-                            <button class="btn btn-outline">Configure</button>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Hardware Integration</h3>
-                                <p>Scanner status: <span class="text-success">Connected (FPS-3000)</span></p>
-                            </div>
-                            <button class="btn btn-outline">Calibrate</button>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Auto-Sync</h3>
-                                <p>Sync records with National Health Database.</p>
-                            </div>
-                            <div class="toggle-switch"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <footer class="app-footer">
-                <p>&copy; 2026 LifeLink Medical Systems. All rights reserved.</p>
-                <div class="footer-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Support</a>
-                    <a href="#">v2.4.0</a>
-                </div>
-            </footer>
+
 
             <div id="verify-overlay" class="overlay hidden">
                 <div class="modal glass biometric-modal">
@@ -359,7 +270,7 @@
                             <div class="match-info">
                                 <div class="match-card">
                                     <span class="label">Mother</span>
-                                    <span class="value" id="res-mother-name">Emma Doe</span>
+                                    <span class="value" id="res-mother-name">E Doe</span>
                                 </div>
                                 <div class="match-divider"></div>
                                 <div class="match-card">
