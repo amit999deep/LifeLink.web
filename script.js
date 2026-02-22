@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', async () => {
     // face-api.js Model Initialization
     const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
@@ -21,19 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadModels();
 
     // State management
-    let records = [
-        {
-            id: '#NB-9042',
-            babyName: 'Saptarshi',
-            motherName: 'Rupa Dash',
-            time: '20 Feb, 2026 | 14:30',
-            status: 'Verified',
-            motherPhoto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
-            babyPhoto: 'https://images.unsplash.com/photo-1544126592-807daa2b569b?auto=format&fit=crop&q=80&w=200',
-            descriptor: null // Legacy records don't have biometric data
-        },
-        // ... (other legacy records)
-    ];
+    let records = [];
 
     let currentVerifyRecord = null;
     let selectedSearchRecord = null;
@@ -629,6 +616,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { note.style.opacity = '1'; note.style.transform = 'translateY(0)'; }, 10);
         setTimeout(() => { note.style.opacity = '0'; note.style.transform = 'translateY(10px)'; setTimeout(() => note.remove(), 300); }, 4000);
     }
+
+    // Global Camera Switch Logic
+    document.querySelectorAll('.global-camera-switch').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+
+            // Update all global switch buttons
+            document.querySelectorAll('.global-camera-switch').forEach(b => {
+                b.innerHTML = `<i data-lucide="refresh-cw"></i> Switch Camera (${currentFacingMode === 'user' ? 'Front' : 'Back'})`;
+            });
+            lucide.createIcons();
+
+            showNotification(`Camera preference set to ${currentFacingMode}`, 'info');
+        });
+    });
 
     renderRecords();
 });
