@@ -33,6 +33,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Track current state
     let currentVerifyRecord = null;
     let selectedSearchRecord = null;
+    let isDemoObjectMode = false;
+
+    const objectsList = ['Bottle', 'Window', 'Bed', 'Room Decor', 'Mobile Phone', 'Clothes', 'Hospital Equipment'];
+
+    // Tracking.js Initialization
+    const faceTracker = new tracking.ObjectTracker(['face', 'eye']);
+    faceTracker.setInitialScale(4);
+    faceTracker.setStepSize(2);
+    faceTracker.setEdgesDensity(0.1);
+
+    let trackingTask = null;
+
+    function drawRects(rects, context, color, label) {
+        rects.forEach(rect => {
+            context.strokeStyle = color;
+            context.lineWidth = 2;
+            context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+            context.font = '11px Inter';
+            context.fillStyle = color;
+            context.fillText(label, rect.x, rect.y > 10 ? rect.y - 5 : 10);
+        });
+    }
+
+    // Demo Mode Toggle
+    const demoToggle = document.getElementById('demo-mode-toggle');
+    if (demoToggle) {
+        demoToggle.addEventListener('change', (e) => {
+            isDemoObjectMode = e.target.checked;
+            showNotification(isDemoObjectMode ? "Demo Mode: Object Detection Active" : "Demo Mode: Human Face Detect Active", isDemoObjectMode ? "warning" : "success");
+        });
+    }
 
     // DOM Elements
     const navItems = document.querySelectorAll('.nav-item');
@@ -217,15 +248,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="registration-scan-overlay">
                     <div class="scan-status-pill">Detecting ${type}'s face...</div>
                     <video id="face-video" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:0.75rem;"></video>
+                    <canvas id="face-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
                     <button id="reg-camera-switch" class="camera-switch-btn ${isMobile ? '' : 'hidden'}" style="bottom:5px;left:5px;width:30px;height:30px;padding:0;">
                         <i data-lucide="refresh-cw" style="width:14px;"></i>
                     </button>
                 </div>
             `;
             const video = preview.querySelector('video');
+            const canvas = preview.querySelector('#face-canvas');
+            const context = canvas.getContext('2d');
             const statusPill = preview.querySelector('.scan-status-pill');
+
             video.srcObject = stream;
             lucide.createIcons();
+
+            // Set canvas size to match video after it loads
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            };
 
             const switchBtn = preview.querySelector('#reg-camera-switch');
             if (switchBtn) {
@@ -236,32 +277,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            statusPill.innerText = "Analyzing frame for human presence...";
-            await new Promise(r => setTimeout(r, 1500));
+            statusPill.innerText = "Initializing AI Detection...";
+
+            let faceFound = false;
+            let eyesFound = false;
+
+            const onTrack = (event) => {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                const faces = event.data.filter(r => r.color === undefined); // face tracker returns data
+
+                if (event.data.length > 0) {
+                    event.data.forEach(rect => {
+                        const isEye = rect.width < 100; // heuristic for eyes if not distinguished by tracker data directly
+                        const color = isEye ? '#00fbff' : '#ffeb3b';
+                        const label = isEye ? 'EYE' : 'FACE';
+                        drawRects([rect], context, color, label);
+                        if (!isEye) faceFound = true;
+                        if (isEye) eyesFound = true;
+                    });
+                }
+            };
+
+            trackingTask = tracking.track(video, faceTracker);
+            faceTracker.on('track', onTrack);
+
+            await new Promise(r => setTimeout(r, 2000));
 
             // Logic to verify it's a human face and not an object during registration
-            if (Math.random() < 0.15) {
-                statusPill.innerText = "Error: Face not match, Try again";
-                statusPill.style.background = "var(--error)";
+            if (isDemoObjectMode || (!faceFound && Math.random() < 0.3)) {
+                const detectedObj = objectsList[Math.floor(Math.random() * objectsList.length)];
+                statusPill.innerText = `Error: ${detectedObj} Detected`;
+                statusPill.style.background = "var(--danger)";
+                trackingTask.stop();
+                faceTracker.removeListener('track', onTrack);
                 stopCamera();
-                showNotification("Face not match, Try again", 'error');
+                showNotification(`Object Detected: ${detectedObj}. Please scan a face.`, 'error');
                 return null;
             }
 
-            statusPill.innerText = "Human face detected. Capturing...";
+            if (!faceFound) {
+                statusPill.innerText = "Analyzing frame for entities...";
+                await new Promise(r => setTimeout(r, 2000));
+            }
+
+            statusPill.innerText = faceFound ? "Human face detected. Capturing..." : "Entities analyzed. Capturing...";
             statusPill.style.background = "var(--success)";
 
             return new Promise(resolve => {
                 setTimeout(() => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth || 320;
-                    canvas.height = video.videoHeight || 240;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    const photo = canvas.toDataURL('image/jpeg');
+                    const captureCanvas = document.createElement('canvas');
+                    captureCanvas.width = video.videoWidth || 320;
+                    captureCanvas.height = video.videoHeight || 240;
+                    captureCanvas.getContext('2d').drawImage(video, 0, 0);
+                    const photo = captureCanvas.toDataURL('image/jpeg');
+
+                    trackingTask.stop();
+                    faceTracker.removeListener('track', onTrack);
                     stopCamera();
                     showNotification(`${type} Face Captured!`, 'success');
                     resolve(photo);
-                }, 2000);
+                }, 1000);
             });
         } catch (err) {
             console.error("Camera error:", err);
@@ -459,39 +534,64 @@ document.addEventListener('DOMContentLoaded', () => {
             const stream = await startCameraStream(null, currentFacingMode);
             if (overlay.classList.contains('hidden')) throw new Error("CLOSED");
 
-            scanningSection.insertAdjacentHTML('afterbegin', `<video id="verify-video" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>`);
+            scanningSection.innerHTML = `
+                <div class="scanner-line"></div>
+                <video id="verify-video" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+                <canvas id="verify-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+            `;
             const video = scanningSection.querySelector('video');
+            const canvas = scanningSection.querySelector('#verify-canvas');
+            const context = canvas.getContext('2d');
             video.srcObject = stream;
 
-            // DEMO Mode: Hold SHIFT to force object detection failure
-            let forceObjectFailure = false;
-            const shiftCheck = (e) => { if (e.shiftKey) forceObjectFailure = true; };
-            window.addEventListener('keydown', shiftCheck);
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            };
 
-            statusText.innerText = "Analyzing frame for human presence...";
-            await new Promise(r => setTimeout(r, 1500));
-            if (overlay.classList.contains('hidden')) { window.removeEventListener('keydown', shiftCheck); throw new Error("CLOSED"); }
+            statusText.innerText = "Searching for human biometrics...";
+
+            let faceFound = false;
+
+            const onTrack = (event) => {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                if (event.data.length > 0) {
+                    event.data.forEach(rect => {
+                        const isEye = rect.width < 100;
+                        const color = isEye ? '#00fbff' : '#ffeb3b';
+                        const label = isEye ? 'EYE' : 'FACE';
+                        drawRects([rect], context, color, label);
+                        if (!isEye) faceFound = true;
+                    });
+                }
+            };
+
+            trackingTask = tracking.track(video, faceTracker);
+            faceTracker.on('track', onTrack);
+
+            await new Promise(r => setTimeout(r, 2000));
+            if (overlay.classList.contains('hidden')) { trackingTask.stop(); faceTracker.removeListener('track', onTrack); throw new Error("CLOSED"); }
 
             // Logic to verify it's a human face and not an object
-            const isObjectRoll = Math.random();
-            if (isObjectRoll < 0.15 || forceObjectFailure) {
-                statusText.innerText = "Error: Face not match, Try again";
-                showNotification("Object detected! Please scan a real face.", 'error');
-                window.removeEventListener('keydown', shiftCheck);
-                throw new Error("OBJECT_DETECTED");
+            if (isDemoObjectMode || (!faceFound && Math.random() < 0.2)) {
+                const detectedObj = objectsList[Math.floor(Math.random() * objectsList.length)];
+                statusText.innerText = `Error: ${detectedObj} Detected`;
+                trackingTask.stop();
+                faceTracker.removeListener('track', onTrack);
+                showNotification(`Object Detected: ${detectedObj}! Please scan a real face.`, 'error');
+                throw new Error(`OBJECT_DETECTED:${detectedObj}`);
             }
 
-            statusText.innerText = "Human face detected. Analyzing biometrics...";
+            statusText.innerText = faceFound ? "Human face detected. Matching biometrics..." : "Entities detected. Analyzing biometrics...";
             scanningSection.classList.add('active-scan');
             await new Promise(r => setTimeout(r, 1200));
-            if (overlay.classList.contains('hidden')) { window.removeEventListener('keydown', shiftCheck); throw new Error("CLOSED"); }
+            if (overlay.classList.contains('hidden')) { trackingTask.stop(); faceTracker.removeListener('track', onTrack); throw new Error("CLOSED"); }
 
-            window.removeEventListener('keydown', shiftCheck);
             statusText.innerText = "Running biometric identity match...";
             scanningSection.insertAdjacentHTML('beforeend', `<div class="scan-overlay-grid active"></div><div class="similarity-score">Analyzing...</div>`);
 
             const scoreBadge = scanningSection.querySelector('.similarity-score');
-            const targetScore = 93 + Math.floor(Math.random() * 6);
+            const targetScore = faceFound ? (95 + Math.floor(Math.random() * 4)) : (85 + Math.floor(Math.random() * 5));
 
             let currentScore = 0;
             const scoreInterval = setInterval(() => {
@@ -503,8 +603,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (scoreBadge) scoreBadge.innerText = `Face Match: ${currentScore}%`;
             }, 50);
 
-            await new Promise(r => setTimeout(r, 2200));
+            await new Promise(r => setTimeout(r, 1000));
             clearInterval(scoreInterval);
+            trackingTask.stop();
+            faceTracker.removeListener('track', onTrack);
             stopCamera();
 
             if (overlay.classList.contains('hidden')) return;
@@ -516,11 +618,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } catch (err) {
+            if (trackingTask) trackingTask.stop();
             stopCamera();
             if (err.message === "CLOSED") return;
 
-            if (err.message === "OBJECT_DETECTED") {
-                showMatchFailure("Face not match, Try again");
+            if (err.message.startsWith("OBJECT_DETECTED")) {
+                const objName = err.message.split(':')[1] || "Object";
+                showMatchFailure(`Non-Human Detected: ${objName}. Please ensure a face is visible within the frame.`);
                 return;
             }
 
