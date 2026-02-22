@@ -3,14 +3,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
 
     async function loadModels() {
-        showNotification("Loading AI Models...", "info");
         try {
             await Promise.all([
                 faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
                 faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                 faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
             ]);
-            showNotification("AI Models Ready", "success");
         } catch (err) {
             console.error("Model loading failed:", err);
             showNotification("Failed to load AI models. Identity check might be limited.", "error");
