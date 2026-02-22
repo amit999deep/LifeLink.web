@@ -10,10 +10,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Tracking.js for Face/Eye detection -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/tracking-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/data/face-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/data/eye-min.js"></script>
+    <!-- face-api.js for biometric recognition -->
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 </head>
 
 <body>
@@ -46,15 +44,6 @@
                     <i data-lucide="database"></i>
                     <span>Patient Records</span>
                 </a>
-
-                <div class="demo-toggle-container">
-                    <div class="demo-label">Demo: Object Detection</div>
-                    <label class="switch">
-                        <input type="checkbox" id="demo-mode-toggle">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-
             </nav>
         </aside>
 
@@ -190,7 +179,7 @@
                         <div class="verify-action-card glass">
                             <div class="card-icon"><i data-lucide="scan"></i></div>
                             <h3>AI Face Identity</h3>
-                            <p>Scan baby's face to automatically find and verify the paired mother record.</p>
+                            <p>Scan baby's face and show baby's mother face.</p>
                             <button class="btn btn-primary" id="start-face-verify">Verify Baby Face</button>
                         </div>
 
