@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             ]);
         } catch (err) {
             console.error("Model loading failed:", err);
-            showNotification("Failed to load AI models. Identity check might be limited.", "error");
         }
     }
 
