@@ -85,19 +85,6 @@
                             </thead>
                             <tbody id="baby-records-list">
                                 <!-- Records will be injected here -->
-                                <tr>
-                                    <td>#NB-9042</td>
-                                    <td>
-                                        <div class="baby-cell">
-                                            <div class="baby-avatar">S</div>
-                                            <span>Saptarshi</span>
-                                        </div>
-                                    </td>
-                                    <td>Rupa Dash</td>
-                                    <td>20 Feb, 2026 | 14:30</td>
-                                    <td><span class="status-badge verified">Verified</span></td>
-                                    <td><button class="btn-icon-m"><i data-lucide="more-horizontal"></i></button></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -135,7 +122,15 @@
                         </div>
 
                         <div class="biometric-setup">
-                            <h3>Face Pairing System</h3>
+                            <div class="setup-header">
+                                <h3>Face Pairing System</h3>
+                                <div class="camera-switch-container" id="reg-mobile-switch-container">
+                                    <button type="button" class="btn btn-outline btn-sm global-camera-switch"
+                                        data-target="reg">
+                                        <i data-lucide="refresh-cw"></i> Switch Camera
+                                    </button>
+                                </div>
+                            </div>
                             <div class="setup-grid">
                                 <div class="scan-group">
                                     <div class="scan-step">
@@ -180,6 +175,11 @@
                             <div class="card-icon"><i data-lucide="scan"></i></div>
                             <h3>AI Face Identity</h3>
                             <p>Scan baby's face and show baby's mother face.</p>
+                            <div class="camera-switch-container" id="verify-mobile-switch-container">
+                                <button class="btn btn-outline btn-sm global-camera-switch" data-target="verify">
+                                    <i data-lucide="refresh-cw"></i> Switch Camera
+                                </button>
+                            </div>
                             <button class="btn btn-primary" id="start-face-verify">Verify Baby Face</button>
                         </div>
 
