@@ -236,6 +236,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 canvas.height = video.videoHeight;
             };
 
+            // Wire up camera switch button in registration
+            const switchBtn = preview.querySelector('#reg-camera-switch');
+            if (switchBtn) {
+                switchBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+                    const newStream = await startCameraStream(video, currentFacingMode);
+                    video.srcObject = newStream;
+                    showNotification(`Switched to ${currentFacingMode} camera`, 'info');
+                });
+            }
+
             await new Promise(r => setTimeout(r, 1000)); // Wait for video to settle
 
             let extractedPhoto = null;
@@ -482,6 +494,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
             };
+
+            // Inject and wire up camera switch button in verification
+            scanningSection.insertAdjacentHTML('beforeend', `
+                <button id="verify-camera-switch" class="camera-switch-btn" style="z-index:10;">
+                    <i data-lucide="refresh-cw"></i>
+                </button>
+            `);
+            lucide.createIcons();
+
+            const vSwitchBtn = scanningSection.querySelector('#verify-camera-switch');
+            if (vSwitchBtn) {
+                vSwitchBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+                    const newStream = await startCameraStream(video, currentFacingMode);
+                    video.srcObject = newStream;
+                    showNotification(`Switched to ${currentFacingMode} camera`, 'info');
+                });
+            }
 
             statusText.innerText = "Searching for identity signature...";
 
