@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // face-api.js Model Initialization
     const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
 
     async function loadModels() {
@@ -15,16 +14,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     await loadModels();
-
-    // State management
     let records = [];
-
     let currentVerifyRecord = null;
     let selectedSearchRecord = null;
     let currentFacingMode = 'user';
     let currentStream = null;
-
-    // DOM Elements
     const navItems = document.querySelectorAll('.nav-item');
     const sidebar = document.querySelector('.sidebar');
     const mobileToggle = document.getElementById('mobile-toggle');
@@ -36,8 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overlay = document.getElementById('verify-overlay');
     const closeBtn = document.querySelector('.close-btn');
     const startFaceVerifyBtn = document.getElementById('start-face-verify');
-
-    // Sidebar & Mobile Navigation functionality
     if (sidebar && mobileToggle) {
         mobileToggle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -69,7 +61,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Tab Switching
     function switchTab(targetTab) {
         closeSidebar();
         navItems.forEach(item => {
@@ -103,7 +94,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Dashboard Search
     const dashboardSearch = document.getElementById('dashboard-search');
     if (dashboardSearch) {
         dashboardSearch.addEventListener('input', (e) => {
@@ -116,8 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderRecords(filtered);
         });
     }
-
-    // Manual REF ID Search
     const manualSearchInput = document.getElementById('manual-search-input');
     const manualSearchBtn = document.getElementById('manual-search-btn');
 
@@ -184,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Face Scan System (Registration)
+    
     let motherFacePhoto = null;
     let motherDescriptor = null;
     let babyFacePhoto = null;
@@ -221,7 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 canvas.height = video.videoHeight;
             };
 
-            // Wire up camera switch button in registration
             const switchBtn = preview.querySelector('#reg-camera-switch');
             if (switchBtn) {
                 switchBtn.addEventListener('click', async (e) => {
@@ -233,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
 
-            await new Promise(r => setTimeout(r, 1000)); // Wait for video to settle
+            await new Promise(r => setTimeout(r, 1000)); 
 
             let extractedPhoto = null;
             let extractedDescriptor = null;
@@ -266,12 +253,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         clearInterval(scanInterval);
                         stopCamera();
-                        showNotification(`${type} Face Captured!`, 'success');
-
-                        // Wait a bit to show success state in UI
+                        showNotification(`${type} Face Captured!`, 'success');                    
                         setTimeout(() => {
-                            if (type === 'Newborn') babyDescriptor = extractedDescriptor;
-                            // Trigger callback manually in the promise
+                            if (type === 'Newborn') babyDescriptor = extractedDescriptor;                    
                         }, 500);
                     }
                 } else {
@@ -280,7 +264,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }, 500);
 
-            // Wait until we have a photo
             while (!extractedPhoto) {
                 await new Promise(r => setTimeout(r, 100));
             }
@@ -327,8 +310,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-
-    // Form Submission
     if (registrationForm) {
         registrationForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -353,8 +334,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 status: 'Verified',
                 motherPhoto: motherFacePhoto,
                 babyPhoto: babyFacePhoto,
-                motherDescriptor: motherDescriptor, // Store mother's descriptor
-                descriptor: babyDescriptor // Store baby's descriptor for verification
+                motherDescriptor: motherDescriptor, 
+                descriptor: babyDescriptor
             };
 
             records.unshift(newRecord);
@@ -423,8 +404,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </tr>
         `).join('');
     }
-
-    // Camera Management
     async function startCameraStream(videoElement, mode = currentFacingMode) {
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
@@ -446,8 +425,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentStream = null;
         }
     }
-
-    // Verification Modal Logic
     async function showVerificationModal(record) {
         overlay.classList.remove('hidden');
         const scanningSection = overlay.querySelector('.scanning-animation');
@@ -482,8 +459,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
             };
-
-            // Inject and wire up camera switch button in verification
             scanningSection.insertAdjacentHTML('beforeend', `
                 <button id="verify-camera-switch" class="camera-switch-btn" style="z-index:10;">
                     <i data-lucide="refresh-cw"></i>
@@ -521,11 +496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const dims = faceapi.matchDimensions(canvas, video, true);
                     const resizedDetections = faceapi.resizeResults(detections, dims);
                     faceapi.draw.drawDetections(canvas, resizedDetections);
-
-
-
                     if (record.descriptor || record.motherDescriptor) {
-                        // Bidirectional Biometric Comparison
                         let matchedWho = null;
                         let bestDistance = 1.0;
 
@@ -552,7 +523,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             finishVerification(true, record, bestDistance, matchedWho);
                         }
                     } else {
-                        // Simulation for legacy records
                         setTimeout(() => {
                             if (Math.random() > 0.1) finishVerification(true, record, 0.1, 'baby');
                             else finishVerification(false, record);
@@ -562,8 +532,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
             }, 500);
-
-            // Timeout after 8 seconds of scanning
             setTimeout(() => {
                 if (!matchFound && !overlay.classList.contains('hidden')) {
                     clearInterval(scanInterval);
@@ -595,8 +563,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const matchFaceImg = document.getElementById('res-match-baby-face');
             const matchPlaceholder = document.getElementById('res-match-placeholder');
-
-            // Swap Logic: Show mother if baby matched, show baby if mother matched
             const photoToShow = (matchedWho === 'mother') ? record.babyPhoto : record.motherPhoto;
             const labelToShow = (matchedWho === 'mother') ? "Baby Assigned" : "Mother Assigned";
 
@@ -626,8 +592,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const retryBtn = document.getElementById('retry-scan-btn');
     if (retryBtn) retryBtn.addEventListener('click', () => showVerificationModal(currentVerifyRecord || records[0]));
-
-    // Notification Helper
     function showNotification(message, type) {
         const note = document.createElement('div');
         note.className = `notification ${type}`;
@@ -637,14 +601,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { note.style.opacity = '1'; note.style.transform = 'translateY(0)'; }, 10);
         setTimeout(() => { note.style.opacity = '0'; note.style.transform = 'translateY(10px)'; setTimeout(() => note.remove(), 300); }, 4000);
     }
-
-    // Global Camera Switch Logic
     document.querySelectorAll('.global-camera-switch').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-
-            // Update all global switch buttons
             document.querySelectorAll('.global-camera-switch').forEach(b => {
                 b.innerHTML = `<i data-lucide="refresh-cw"></i> Switch Camera (${currentFacingMode === 'user' ? 'Front' : 'Back'})`;
             });
@@ -656,3 +616,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderRecords();
 });
+
