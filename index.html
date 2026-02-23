@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +9,10 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- face-api.js for biometric recognition -->
     <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 </head>
-
 <body>
     <div class="app-container">
-        <!-- menue-->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -46,8 +42,6 @@
                 </a>
             </nav>
         </aside>
-
-        <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
                 <button class="mobile-toggle" id="mobile-toggle">
@@ -64,9 +58,7 @@
                     </button>
                 </div>
             </header>
-
             <div id="tab-dashboard" class="tab-pane active">
-
                 <section class="recent-records">
                     <div class="section-header">
                         <h2>Recent Newborn Records</h2>
@@ -84,14 +76,11 @@
                                 </tr>
                             </thead>
                             <tbody id="baby-records-list">
-                                <!-- Records will be injected here -->
                             </tbody>
                         </table>
                     </div>
                 </section>
             </div>
-
-            <!-- Registration Tab -->
             <div id="tab-registration" class="tab-pane">
                 <div class="form-container glass">
                     <h2>New Born Registration</h2>
@@ -120,7 +109,6 @@
                                     placeholder="Enter Hospital ID">
                             </div>
                         </div>
-
                         <div class="biometric-setup">
                             <div class="setup-header">
                                 <h3>Face Pairing System</h3>
@@ -164,12 +152,8 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Biometric Verification part -->
             <div id="tab-verification" class="tab-pane">
                 <div class="verify-dashboard">
-
-
                     <div class="verification-grid">
                         <div class="verify-action-card glass">
                             <div class="card-icon"><i data-lucide="scan"></i></div>
@@ -182,7 +166,6 @@
                             </div>
                             <button class="btn btn-primary" id="start-face-verify">Verify Baby Face</button>
                         </div>
-
                         <div class="verify-action-card glass">
                             <div class="card-icon"><i data-lucide="search"></i></div>
                             <h3>Search via REF ID</h3>
@@ -212,8 +195,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Patient Records Tab -->
             <div id="tab-records" class="tab-pane">
                 <div class="records-header">
                     <h2>Master Patient Records</h2>
@@ -232,13 +213,12 @@
                             </tr>
                         </thead>
                         <tbody id="full-records-list">
-                            <!-- JS -->
                             <tr>
-                                <td>H-9042</td>
+                                <td></td>
                                 <td>Rupa Dash</td>
                                 <td>28</td>
                                 <td>20 Feb, 2026</td>
-                                <td>Saptashi</td>
+                                <td>deep rudra pau;</td>
                                 <td>Ward 4A-102</td>
                                 <td><span class="status-badge verified">Active</span></td>
                             </tr>
@@ -246,9 +226,6 @@
                     </table>
                 </div>
             </div>
-
-
-
             <div id="verify-overlay" class="overlay hidden">
                 <div class="modal glass biometric-modal">
                     <div class="modal-header">
@@ -296,8 +273,6 @@
             </div>
 
         </main>
-
-        <!-- Mobile Bottom Nav -->
         <nav class="mobile-bottom-nav">
             <div class="nav-tabs">
                 <a href="#" class="nav-tab active" data-tab="dashboard">
@@ -322,9 +297,9 @@
 
     <script src="script.js"></script>
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
     </script>
 </body>
 
 </html>
+
