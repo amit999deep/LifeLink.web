@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Face Scan System (Registration)
     let motherFacePhoto = null;
+    let motherDescriptor = null;
     let babyFacePhoto = null;
     let babyDescriptor = null;
 
@@ -301,6 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await captureFace('Mother', 'mother-face-preview');
             if (result) {
                 motherFacePhoto = result.photo;
+                motherDescriptor = result.descriptor;
                 preview.innerHTML = `<i data-lucide="check-circle" style="color:var(--success)"></i><span class="scan-label">Face Scanned</span>`;
                 lucide.createIcons();
             } else {
@@ -351,6 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 status: 'Verified',
                 motherPhoto: motherFacePhoto,
                 babyPhoto: babyFacePhoto,
+                motherDescriptor: motherDescriptor, // Store mother's descriptor
                 descriptor: babyDescriptor // Store baby's descriptor for verification
             };
 
@@ -359,6 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             registrationForm.reset();
 
             motherFacePhoto = null;
+            motherDescriptor = null;
             babyFacePhoto = null;
             babyDescriptor = null;
 
@@ -518,25 +522,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const resizedDetections = faceapi.resizeResults(detections, dims);
                     faceapi.draw.drawDetections(canvas, resizedDetections);
 
-                    statusText.innerText = "Comparing biometric data...";
 
-                    if (record.descriptor) {
-                        // REAL Biometric Comparison
-                        const distance = faceapi.euclideanDistance(detections.descriptor, record.descriptor);
-                        matchDistance = distance;
-                        if (distance < 0.6) { // Threshold for match
+
+                    if (record.descriptor || record.motherDescriptor) {
+                        // Bidirectional Biometric Comparison
+                        let matchedWho = null;
+                        let bestDistance = 1.0;
+
+                        if (record.descriptor) {
+                            const dIdx = faceapi.euclideanDistance(detections.descriptor, record.descriptor);
+                            if (dIdx < 0.6) {
+                                matchedWho = 'baby';
+                                bestDistance = dIdx;
+                            }
+                        }
+
+                        if (!matchedWho && record.motherDescriptor) {
+                            const dMoth = faceapi.euclideanDistance(detections.descriptor, record.motherDescriptor);
+                            if (dMoth < 0.6) {
+                                matchedWho = 'mother';
+                                bestDistance = dMoth;
+                            }
+                        }
+
+                        if (matchedWho) {
                             matchFound = true;
-                            finalDescriptor = detections.descriptor;
+                            matchDistance = bestDistance;
                             clearInterval(scanInterval);
-                            finishVerification(true, record, distance);
-                        } else if (distance > 0.7) {
-                            // If it's a very clear mismatch, we can stop early
-                            // But usually, we wait for a few seconds to be sure
+                            finishVerification(true, record, bestDistance, matchedWho);
                         }
                     } else {
                         // Simulation for legacy records
                         setTimeout(() => {
-                            if (Math.random() > 0.1) finishVerification(true, record, 0.1);
+                            if (Math.random() > 0.1) finishVerification(true, record, 0.1, 'baby');
                             else finishVerification(false, record);
                             clearInterval(scanInterval);
                         }, 2000);
@@ -559,7 +577,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function finishVerification(success, record, distance = 1.0) {
+    function finishVerification(success, record, distance = 1.0, matchedWho = 'baby') {
         stopCamera();
         if (overlay.classList.contains('hidden')) return;
 
@@ -578,15 +596,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             const matchFaceImg = document.getElementById('res-match-baby-face');
             const matchPlaceholder = document.getElementById('res-match-placeholder');
 
-            if (record.motherPhoto) {
-                matchFaceImg.src = record.motherPhoto;
+            // Swap Logic: Show mother if baby matched, show baby if mother matched
+            const photoToShow = (matchedWho === 'mother') ? record.babyPhoto : record.motherPhoto;
+            const labelToShow = (matchedWho === 'mother') ? "Baby Assigned" : "Mother Assigned";
+
+            resultSection.querySelector('h3').innerText = `${labelToShow} Found!`;
+
+            if (photoToShow) {
+                matchFaceImg.src = photoToShow;
                 matchFaceImg.classList.remove('hidden');
                 matchPlaceholder.classList.add('hidden');
             } else {
                 matchFaceImg.classList.add('hidden');
                 matchPlaceholder.classList.remove('hidden');
             }
-            showNotification(`Identity Verified (Score: ${Math.round((1 - distance) * 100)}%)`, 'success');
+
         } else {
             const failedSection = overlay.querySelector('.match-failed');
             failedSection.classList.remove('hidden');
